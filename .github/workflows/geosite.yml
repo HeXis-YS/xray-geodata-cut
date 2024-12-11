@@ -1,0 +1,35 @@
+name: Build geosite.dat
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 22 * * *"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.mod
+
+      - name: Download geosite.dat
+        run: |
+          curl -L "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat" -o ./geosite.dat
+
+      - name: Generate trimmed geosite.dat
+        run: |
+          go run ./ -type geosite -in geosite.dat -keep cn,private -out geosite-only-cn-private.dat
+
+      - name: Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: rolling
+          draft: false
+          prerelease: false
+          files: |
+            ./geosite-only-cn-private.dat
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
