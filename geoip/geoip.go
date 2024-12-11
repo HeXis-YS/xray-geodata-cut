@@ -38,7 +38,7 @@ func CutGeoIPCodes(in *router.GeoIPList, codesToKeep []string, trimIPv6 bool) *r
 		for _, y := range codesToKeep {
 			u := strings.ToUpper(x.CountryCode)
 			switch u {
-			case strings.ToUpper(strings.TrimSpace(y)), "PRIVATE":
+			case strings.ToUpper(strings.TrimSpace(y)):
 				{
 					if kept[u] {
 						continue
