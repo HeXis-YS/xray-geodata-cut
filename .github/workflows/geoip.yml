@@ -1,0 +1,37 @@
+name: Build geoip.dat
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 0 * * 4"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.mod
+
+      - name: Download geoip.dat
+        run: |
+          curl -L "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat" -o ./geoip.dat
+
+      - name: Generate trimmed geoip.dat
+        run: |
+          go run ./ -type geoip -in geoip.dat -trimipv6 -keep cn,private -out geoip-only-cn-private-ipv4.dat
+          go run ./ -type geoip -in geoip.dat -trimipv6 -keep cn -out geoip-only-cn-ipv4.dat
+
+      - name: Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: rolling
+          draft: false
+          prerelease: false
+          files: |
+            ./geoip-only-cn-private-ipv4.dat
+            ./geoip-only-cn-ipv4.dat
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
