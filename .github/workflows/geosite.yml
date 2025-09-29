@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate trimmed geosite.dat
         run: |
-          go run ./ -type geosite -in geosite.dat -keep cn,private -out geosite-only-cn-private.dat
+          go run ./ -type geosite -in geosite.dat -keep 'cn,private,tld-!cn,geolocation-!cn' -out geosite-slim.dat
 
       - name: Release and upload assets
         uses: softprops/action-gh-release@v2
@@ -30,6 +30,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ./geosite-only-cn-private.dat
+            ./geosite-slim.dat
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
