@@ -21,8 +21,8 @@ jobs:
 
       - name: Generate trimmed geoip.dat
         run: |
-          go run ./ -type geoip -in geoip.dat -trimipv6 -keep cn,private -out geoip-only-cn-private-ipv4.dat
-          go run ./ -type geoip -in geoip.dat -trimipv6 -keep cn -out geoip-only-cn-ipv4.dat
+          go run ./ -type geoip -in geoip.dat -trimipv6 -keep cn,private -out geoip-client.dat
+          go run ./ -type geoip -in geoip.dat -trimipv6 -keep cn -out geoip-server.dat
 
       - name: Release and upload assets
         uses: softprops/action-gh-release@v2
@@ -31,7 +31,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ./geoip-only-cn-private-ipv4.dat
-            ./geoip-only-cn-ipv4.dat
+            ./geoip-client.dat
+            ./geoip-server.dat
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
