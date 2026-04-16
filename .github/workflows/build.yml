@@ -1,0 +1,36 @@
+name: Build rule files
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+jobs:
+  build:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ./go.mod
+
+      - name: Download geoip.dat
+        run: |
+          curl -fsSL "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat" -o geoip.dat
+          curl -fsSL "https://github.com/Loyalsoldier/domain-list-custom/releases/latest/download/geosite.dat" -o geosite.dat
+
+      - name: Generate trimmed rule files
+        run: |
+          go run . -type geoip -in geoip.dat -trimipv6 -keep cn,private -out geoip.dat
+          go run . -type geosite -in geosite.dat -keep 'private,geolocation-cn,tld-cn,geolocation-!cn,tld-!cn' -out geosite.dat
+
+      - name: Release and upload assets
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: rolling
+          files: |
+            geoip.dat
+            geosite.dat
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
