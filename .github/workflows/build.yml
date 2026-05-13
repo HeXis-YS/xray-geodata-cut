@@ -23,7 +23,7 @@ jobs:
       - name: Generate trimmed rule files
         run: |
           go run . -type geoip -in geoip.dat -trimipv6 -keep cn,private -out geoip.dat
-          go run . -type geosite -in geosite.dat -keep 'private,geolocation-cn,tld-cn,geolocation-!cn,tld-!cn' -out geosite.dat
+          go run . -type geosite -in geosite.dat -keep 'private,cn,geolocation-cn,tld-cn,geolocation-!cn,tld-!cn,google' -out geosite.dat
 
       - name: Release and upload assets
         uses: softprops/action-gh-release@v3
